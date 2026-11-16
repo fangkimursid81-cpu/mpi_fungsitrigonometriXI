@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimedia Pembelajaran Interaktif - Trigonometri</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darktosca: '#0d5c63',
+                        deeptosca: '#042f33',
+                        gold: '#ffd700',
+                        brightred: '#ff3333',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 10s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #042f33;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .math-font {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #042f33;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 4px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .svg-glow {
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen bg-gradient-to-br from-deeptosca to-darktosca">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- DATA MATERI ---
+        const MATERI_DATA = [
+            {
+                id: 1,
+                title: "1. Pengenalan Lingkaran Satuan",
+                content: (
+                    <div className="space-y-4">
+                        <p><strong>Lingkaran Satuan</strong> adalah lingkaran yang memiliki titik pusat di pusat koordinat <span className="math-font">(0,0)</span> dan memiliki jari-jari <span className="math-font">r = 1</span> satuan.</p>
+                        <p>Dalam koordinat Kartesius, persamaan lingkaran satuan adalah <span className="math-font">x² + y² = 1</span>.</p>
+                        <ul className="list-disc pl-5 space-y-2 text-gray-300">
+                            <li><strong>Hubungan dengan Trigonometri:</strong> Jika kita membentuk sudut <span className="math-font">θ</span> dari sumbu-X positif berlawanan arah jarum jam, koordinat titik potong sudut tersebut dengan lingkaran satuan adalah <span className="math-font">(x, y) = (cos θ, sin θ)</span>.</li>
+                            <li><strong>Sudut Positif:</strong> Diukur berlawanan arah putaran jarum jam.</li>
+                            <li><strong>Sudut Negatif:</strong> Diukur searah putaran jarum jam.</li>
+                        </ul>
+                        <div className="flex justify-center my-6">
+                            <svg width="200" height="200" viewBox="-1.2 -1.2 2.4 2.4" className="svg-glow">
+                                <circle cx="0" cy="0" r="1" fill="none" stroke="#ffd700" strokeWidth="0.02" />
+                                <line x1="-1.2" y1="0" x2="1.2" y2="0" stroke="white" strokeWidth="0.01" />
+                                <line x1="0" y1="-1.2" x2="0" y2="1.2" stroke="white" strokeWidth="0.01" />
+                                <line x1="0" y1="0" x2="0.707" y2="-0.707" stroke="#ff3333" strokeWidth="0.03" />
+                                <circle cx="0.707" cy="-0.707" r="0.05" fill="#ffd700" />
+                                <text x="0.8" y="-0.8" fill="white" fontSize="0.15">(cos θ, sin θ)</text>
+                                <text x="1.1" y="-0.05" fill="white" fontSize="0.15">X</text>
+                                <text x="0.05" y="-1.1" fill="white" fontSize="0.15">Y</text>
+                                <path d="M 0.3 0 A 0.3 0.3 0 0 0 0.212 -0.212" fill="none" stroke="yellow" strokeWidth="0.02" />
+                                <text x="0.35" y="-0.1" fill="yellow" fontSize="0.15">θ</text>
+                            </svg>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 2,
+                title: "2. Sudut pada Empat Kuadran",
+                content: (
+                    <div className="space-y-4">
+                        <p>Bidang koordinat dibagi menjadi 4 wilayah yang disebut <strong>Kuadran</strong>. Nilai perbandingan trigonometri memiliki tanda (positif atau negatif) yang berbeda-beda di setiap kuadran.</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="glass-panel p-4 rounded-xl border-t-4 border-t-gold">
+                                <h3 className="text-gold font-bold text-lg">Kuadran I (0° - 90°)</h3>
+                                <ul className="text-gray-300 mt-2">
+                                    <li>Semua positif (ALL)</li>
+                                    <li>Sinus <span className="text-green-400 font-bold">(+)</span></li>
+                                    <li>Cosinus <span className="text-green-400 font-bold">(+)</span></li>
+                                    <li>Tangen <span className="text-green-400 font-bold">(+)</span></li>
+                                </ul>
+                            </div>
+                            <div className="glass-panel p-4 rounded-xl border-t-4 border-t-red-500">
+                                <h3 className="text-red-400 font-bold text-lg">Kuadran II (90° - 180°)</h3>
+                                <ul className="text-gray-300 mt-2">
+                                    <li>Hanya Sinus yang positif</li>
+                                    <li>Sinus <span className="text-green-400 font-bold">(+)</span></li>
+                                    <li>Cosinus <span className="text-red-400 font-bold">(-)</span></li>
+                                    <li>Tangen <span className="text-red-400 font-bold">(-)</span></li>
+                                </ul>
+                            </div>
+                            <div className="glass-panel p-4 rounded-xl border-t-4 border-t-orange-500">
+                                <h3 className="text-orange-400 font-bold text-lg">Kuadran III (180° - 270°)</h3>
+                                <ul className="text-gray-300 mt-2">
+                                    <li>Hanya Tangen yang positif</li>
+                                    <li>Sinus <span className="text-red-400 font-bold">(-)</span></li>
+                                    <li>Cosinus <span className="text-red-400 font-bold">(-)</span></li>
+                                    <li>Tangen <span className="text-green-400 font-bold">(+)</span></li>
+                                </ul>
+                            </div>
+                            <div className="glass-panel p-4 rounded-xl border-t-4 border-t-yellow-500">
+                                <h3 className="text-yellow-400 font-bold text-lg">Kuadran IV (270° - 360°)</h3>
+                                <ul className="text-gray-300 mt-2">
+                                    <li>Hanya Cosinus yang positif</li>
+                                    <li>Sinus <span className="text-red-400 font-bold">(-)</span></li>
+                                    <li>Cosinus <span className="text-green-400 font-bold">(+)</span></li>
+                                    <li>Tangen <span className="text-red-400 font-bold">(-)</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p className="mt-4 text-center italic text-gold">"Cara Cepat Mengingat: SEMUA - SINdikat - TANGan - KOSong"</p>
+                    </div>
+                )
+            },
+            {
+                id: 3,
+                title: "3. Sudut Berelasi",
+                content: (
+                    <div className="space-y-4">
+                        <p>Sudut berelasi adalah hubungan nilai fungsi trigonometri sudut-sudut di kuadran II, III, dan IV dengan sudut lancip (kuadran I).</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-black/30 p-4 rounded-lg">
+                                <h4 className="text-gold font-bold mb-2">Relasi Kuadran I & II</h4>
+                                <p className="text-sm text-gray-300 mb-1">Acuan 180° (Fungsi Tetap)</p>
+                                <ul className="font-mono text-sm space-y-1">
+                                    <li>sin(180° - α) = <span className="text-green-400">sin α</span></li>
+                                    <li>cos(180° - α) = <span className="text-red-400">-cos α</span></li>
+                                    <li>tan(180° - α) = <span className="text-red-400">-tan α</span></li>
+                                </ul>
+                                <p className="text-sm text-gray-300 mt-3 mb-1">Acuan 90° (Fungsi Berubah)</p>
+                                <ul className="font-mono text-sm space-y-1">
+                                    <li>sin(90° + α) = <span className="text-green-400">cos α</span></li>
+                                    <li>cos(90° + α) = <span className="text-red-400">-sin α</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div className="bg-black/30 p-4 rounded-lg">
+                                <h4 className="text-gold font-bold mb-2">Relasi Kuadran III</h4>
+                                <p className="text-sm text-gray-300 mb-1">Acuan 180° (Fungsi Tetap)</p>
+                                <ul className="font-mono text-sm space-y-1">
+                                    <li>sin(180° + α) = <span className="text-red-400">-sin α</span></li>
+                                    <li>cos(180° + α) = <span className="text-red-400">-cos α</span></li>
+                                    <li>tan(180° + α) = <span className="text-green-400">tan α</span></li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-black/30 p-4 rounded-lg">
+                                <h4 className="text-gold font-bold mb-2">Relasi Kuadran IV</h4>
+                                <p className="text-sm text-gray-300 mb-1">Acuan 360° (Fungsi Tetap)</p>
+                                <ul className="font-mono text-sm space-y-1">
+                                    <li>sin(360° - α) = <span className="text-red-400">-sin α</span></li>
+                                    <li>cos(360° - α) = <span className="text-green-400">cos α</span></li>
+                                    <li>tan(360° - α) = <span className="text-red-400">-tan α</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        ];
+
+        // --- DATA CONTOH SOAL ---
+        const CONTOH_SOAL = [
+            { q: "Sudut 150° terletak pada kuadran ke...", a: "Kuadran II", step: "Sudut 150° berada di antara 90° dan 180°. Oleh karena itu, sudut 150° terletak pada Kuadran II." },
+            { q: "Sudut 300° terletak pada kuadran ke...", a: "Kuadran IV", step: "Sudut 300° berada di antara 270° dan 360°. Oleh karena itu, sudut 300° terletak pada Kuadran IV." },
+            { q: "Tentukan tanda dari sin 210°", a: "Negatif (-)", step: "Sudut 210° berada di Kuadran III (180° - 270°). Pada Kuadran III, hanya fungsi Tangen (tan) yang bernilai positif. Oleh karena itu, sin 210° bernilai negatif." },
+            { q: "Tentukan tanda dari cos 315°", a: "Positif (+)", step: "Sudut 315° berada di Kuadran IV (270° - 360°). Pada Kuadran IV, fungsi Cosinus (cos) bernilai positif." },
+            { q: "Tentukan tanda dari tan 120°", a: "Negatif (-)", step: "Sudut 120° berada di Kuadran II. Pada Kuadran II, fungsi Tangen bernilai negatif." },
+            { q: "Berdasarkan lingkaran satuan, jika koordinat suatu titik adalah (½, ½√3), berapakah nilai cosinusnya?", a: "cos θ = ½", step: "Pada lingkaran satuan, koordinat (x, y) sama dengan (cos θ, sin θ). Karena x = ½, maka nilai cos θ = ½." },
+            { q: "Jika titik pada lingkaran satuan adalah (-½√2, -½√2), di kuadran manakah titik tersebut?", a: "Kuadran III", step: "Koordinat titik tersebut adalah (x, y) = (negatif, negatif). Titik dengan koordinat x negatif dan y negatif berada pada Kuadran III." },
+            { q: "Tentukan nilai dari sin(90° - 30°)", a: "cos 30° = ½√3", step: "Menggunakan rumus sudut berelasi Kuadran I: sin(90° - α) = cos α. Maka, sin(90° - 30°) = cos 30°. Nilai cos 30° adalah ½√3." },
+            { q: "Tentukan nilai dari sin 150°", a: "½", step: "Sudut 150° ada di Kuadran II. Gunakan rumus sin(180° - α) = sin α. sin 150° = sin(180° - 30°) = sin 30°. Nilai sin 30° = ½." },
+            { q: "Tentukan nilai dari cos 120°", a: "-½", step: "Sudut 120° ada di Kuadran II. Gunakan rumus cos(180° - α) = -cos α. cos 120° = cos(180° - 60°) = -cos 60°. Nilai cos 60° = ½, jadi jawabannya -½." },
+            { q: "Tentukan nilai dari tan 225°", a: "1", step: "Sudut 225° ada di Kuadran III. Gunakan rumus tan(180° + α) = tan α. tan 225° = tan(180° + 45°) = tan 45°. Nilai tan 45° = 1." },
+            { q: "Tentukan nilai dari sin 240°", a: "-½√3", step: "Sudut 240° (Kuadran III). sin(180° + 60°) = -sin 60°. Karena sin 60° = ½√3, maka sin 240° = -½√3." },
+            { q: "Tentukan nilai dari cos 330°", a: "½√3", step: "Sudut 330° (Kuadran IV). cos(360° - 30°) = cos 30°. Nilai cos 30° = ½√3." },
+            { q: "Tentukan nilai dari sin 315°", a: "-½√2", step: "Sudut 315° (Kuadran IV). sin(360° - 45°) = -sin 45°. Nilai sin 45° = ½√2, maka jawabannya -½√2." },
+            { q: "Berapa nilai sin 30° + cos 60°?", a: "1", step: "sin 30° = ½. cos 60° = ½. Maka ½ + ½ = 1." }
+        ];
+
+        // --- DATA LATIHAN SOAL (30 Soal) ---
+        // Digenerate programmatically agar ringkas
+        const LATIHAN_SOAL = [
+            // LEVEL 1 (Mudah)
+            { q: "Sudut 45° terletak di kuadran?", opts: ["I", "II", "III", "IV"], ans: 0, level: 1 },
+            { q: "Sudut 135° terletak di kuadran?", opts: ["I", "II", "III", "IV"], ans: 1, level: 1 },
+            { q: "Sudut 250° terletak di kuadran?", opts: ["I", "II", "III", "IV"], ans: 2, level: 1 },
+            { q: "Sudut 320° terletak di kuadran?", opts: ["I", "II", "III", "IV"], ans: 3, level: 1 },
+            { q: "Di kuadran manakah nilai Sinus positif?", opts: ["I dan II", "I dan III", "II dan IV", "III dan IV"], ans: 0, level: 1 },
+            { q: "Di kuadran manakah nilai Cosinus positif?", opts: ["I dan II", "I dan IV", "II dan III", "III dan IV"], ans: 1, level: 1 },
+            { q: "Di kuadran manakah nilai Tangen positif?", opts: ["I dan II", "I dan III", "II dan IV", "III dan IV"], ans: 1, level: 1 },
+            { q: "Nilai dari sin 30° adalah...", opts: ["½", "½√2", "½√3", "1"], ans: 0, level: 1 },
+            { q: "Nilai dari cos 60° adalah...", opts: ["1", "½√3", "½√2", "½"], ans: 3, level: 1 },
+            { q: "Nilai dari tan 45° adalah...", opts: ["0", "½", "1", "Tak terhingga"], ans: 2, level: 1 },
+            
+            // LEVEL 2 (Sedang)
+            { q: "Nilai dari sin 120° adalah...", opts: ["½", "½√2", "½√3", "-½√3"], ans: 2, level: 2 },
+            { q: "Nilai dari cos 150° adalah...", opts: ["-½√3", "-½", "½", "½√3"], ans: 0, level: 2 },
+            { q: "Nilai dari tan 135° adalah...", opts: ["1", "-1", "√3", "-√3"], ans: 1, level: 2 },
+            { q: "Nilai dari sin 210° adalah...", opts: ["½", "-½", "½√3", "-½√3"], ans: 1, level: 2 },
+            { q: "Nilai dari cos 225° adalah...", opts: ["½√2", "-½√2", "½", "-½"], ans: 1, level: 2 },
+            { q: "Nilai dari tan 240° adalah...", opts: ["√3", "-√3", "⅓√3", "-⅓√3"], ans: 0, level: 2 },
+            { q: "Nilai dari sin 300° adalah...", opts: ["½", "-½", "½√3", "-½√3"], ans: 3, level: 2 },
+            { q: "Nilai dari cos 315° adalah...", opts: ["½√2", "-½√2", "½", "-½"], ans: 0, level: 2 },
+            { q: "Bentuk lain dari sin(180° - α) adalah...", opts: ["cos α", "-cos α", "sin α", "-sin α"], ans: 2, level: 2 },
+            { q: "Bentuk lain dari cos(360° - α) adalah...", opts: ["cos α", "-cos α", "sin α", "-sin α"], ans: 0, level: 2 },
+
+            // LEVEL 3 (Sulit)
+            { q: "Jika sin α = ⅗ dan α di Kuadran II, nilai cos α adalah...", opts: ["⅘", "-⅘", "¾", "-¾"], ans: 1, level: 3 },
+            { q: "Nilai dari sin 150° + cos 300° adalah...", opts: ["0", "1", "½", "1½"], ans: 1, level: 3 },
+            { q: "Titik (x,y) pada lingkaran satuan bersudut 240°. Titik tersebut adalah...", opts: ["(½, ½√3)", "(-½, ½√3)", "(-½, -½√3)", "(½, -½√3)"], ans: 2, level: 3 },
+            { q: "Nilai dari cos 120° + sin 210° - tan 315° adalah...", opts: ["-2", "-1", "0", "1"], ans: 2, level: 3 },
+            { q: "Jika koordinat suatu titik pada lingkaran satuan adalah (cos θ, sin θ) dengan cos θ < 0 dan sin θ > 0, sudut θ berada di...", opts: ["Kuadran I", "Kuadran II", "Kuadran III", "Kuadran IV"], ans: 1, level: 3 },
+            { q: "Hasil dari (sin 30°)(cos 60°) + (sin 60°)(cos 30°) adalah...", opts: ["0", "½", "1", "2"], ans: 2, level: 3 },
+            { q: "Sudut 480° setara dengan sudut... pada lingkaran satuan", opts: ["60°", "120°", "240°", "300°"], ans: 1, level: 3 },
+            { q: "Bentuk sederhana dari cos(90° + α) adalah...", opts: ["sin α", "-sin α", "cos α", "-cos α"], ans: 1, level: 3 },
+            { q: "Sebuah garis membentuk sudut 315° terhadap sumbu X positif. Gradien garis tersebut (tan θ) adalah...", opts: ["1", "-1", "√3", "-√3"], ans: 1, level: 3 },
+            { q: "Jika tan α = 1 dan sin α < 0, maka sudut α berada di kuadran...", opts: ["I", "II", "III", "IV"], ans: 2, level: 3 },
+        ];
+
+
+        // --- UTILITIES ---
+        const playBeep = (isCorrect, soundEnabled) => {
+            if (!soundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (isCorrect) {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+                } else {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.2);
+                }
+                
+                osc.start();
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
+                osc.stop(ctx.currentTime + 0.3);
+            } catch (e) { console.log("Audio not supported"); }
+        };
+
+        const formatNumber = (num) => {
+            return Number(Math.round(num + 'e2') + 'e-2');
+        };
+
+        const getTrigFraction = (val, func, angle) => {
+            // Simplified display for special angles for educational purposes
+            angle = ((angle % 360) + 360) % 360; 
+            const ref = angle % 90;
+            
+            if (func === 'tan' && (angle === 90 || angle === 270)) return "Tak Terdefinisi";
+            
+            // Just returning decimal string if not special angle for simplicity in this function
+            if (angle % 30 !== 0 && angle % 45 !== 0) return formatNumber(val);
+
+            if (Math.abs(val) < 0.01) return "0";
+            if (Math.abs(val - 1) < 0.01) return "1";
+            if (Math.abs(val + 1) < 0.01) return "-1";
+            
+            const sign = val < 0 ? "-" : "";
+            const absVal = Math.abs(val);
+
+            if (Math.abs(absVal - 0.5) < 0.01) return sign + "½";
+            if (Math.abs(absVal - Math.sqrt(2)/2) < 0.01) return sign + "½√2";
+            if (Math.abs(absVal - Math.sqrt(3)/2) < 0.01) return sign + "½√3";
+            if (Math.abs(absVal - Math.sqrt(3)) < 0.01) return sign + "√3";
+            if (Math.abs(absVal - Math.sqrt(3)/3) < 0.01) return sign + "⅓√3";
+
+            return formatNumber(val);
+        };
+
+
+        // --- COMPONENTS ---
+
+        // 1. Welcome Page
+        const WelcomePage = ({ onStart }) => (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 fade-in">
+                <div className="relative w-64 h-64 mb-8 flex items-center justify-center">
+                    <svg className="absolute inset-0 w-full h-full animate-spin-slow opacity-30 svg-glow" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="#ffd700" strokeWidth="1" strokeDasharray="5,5" />
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ffd700" strokeWidth="0.5" />
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ffd700" strokeWidth="0.5" />
+                    </svg>
+                    <svg className="w-48 h-48 animate-pulse-slow svg-glow" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#ff3333" strokeWidth="2" />
+                        <path d="M 50 50 L 80 20" stroke="white" strokeWidth="2" />
+                        <circle cx="80" cy="20" r="3" fill="#ffd700" />
+                    </svg>
+                </div>
+                
+                <h1 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold to-brightred mb-4 drop-shadow-lg">
+                    SELAMAT DATANG DI MULTIMEDIA PEMBELAJARAN INTERAKTIF
+                </h1>
+                <h2 className="text-lg md:text-2xl font-semibold text-white mb-6 max-w-3xl">
+                    MATERI FUNGSI TRIGONOMETRI DENGAN LINGKARAN SATUAN KELAS XI FASE F
+                </h2>
+                <p className="text-gray-300 max-w-2xl mb-10 text-sm md:text-base leading-relaxed">
+                    Mari belajar memahami sudut pada empat kuadran dan sudut berelasi pada empat kuadran melalui eksplorasi lingkaran satuan secara interaktif dan menyenangkan.
+                </p>
+                
+                <button 
+                    onClick={onStart}
+                    className="group relative px-8 py-4 bg-gold text-darkred font-bold rounded-full text-lg shadow-[0_0_20px_rgba(255,215,0,0.6)] hover:shadow-[0_0_30px_rgba(255,215,0,0.9)] transition-all hover:scale-105 duration-300"
+                >
+                    MULAI BELAJAR
+                    <span className="absolute right-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">→</span>
+                </button>
+            </div>
+        );
+
+        // 2. Dashboard Component
+        const Dashboard = ({ navigateTo }) => {
+            const menus = [
+                { id: 'materi', title: 'MATERI PEMBELAJARAN', desc: 'Penjelasan teori dan konsep.', icon: '📚', color: 'from-red-600 to-red-800' },
+                { id: 'contoh', title: 'CONTOH SOAL', desc: 'Soal beserta pembahasan langkah demi langkah.', icon: '📝', color: 'from-orange-500 to-orange-700' },
+                { id: 'latihan', title: 'LATIHAN SOAL', desc: 'Uji pemahaman dengan kuis interaktif.', icon: '🎯', color: 'from-yellow-500 to-yellow-700' },
+                { id: 'simulasi', title: 'LABORATORIUM PERCOBAAN', desc: 'Eksplorasi lingkaran satuan interaktif.', icon: '🔬', color: 'from-red-500 to-orange-600' },
+                { id: 'pengembang', title: 'INFORMASI PENGEMBANG', desc: 'Profil pengembang aplikasi.', icon: '👨‍🏫', color: 'from-orange-600 to-red-700' }
+            ];
+
+            return (
+                <div className="p-6 md:p-12 max-w-6xl mx-auto fade-in">
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">DASHBOARD UTAMA</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {menus.map((menu) => (
+                            <div 
+                                key={menu.id} 
+                                onClick={() => navigateTo(menu.id)}
+                                className={`glass-panel cursor-pointer rounded-2xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,215,0,0.3)] bg-gradient-to-br ${menu.color} bg-opacity-20 flex flex-col justify-between h-56`}
+                            >
+                                <div>
+                                    <div className="text-5xl mb-4">{menu.icon}</div>
+                                    <h3 className="text-xl font-bold text-white mb-2">{menu.title}</h3>
+                                    <p className="text-gray-200 text-sm">{menu.desc}</p>
+                                </div>
+                                <div className="mt-4 flex justify-end">
+                                    <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition">
+                                        Masuk →
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // 3. Materi Pembelajaran Component
+        const MateriPembelajaran = ({ goBack }) => {
+            const [activeTab, setActiveTab] = useState(1);
+
+            return (
+                <div className="p-6 max-w-4xl mx-auto fade-in h-screen flex flex-col">
+                    <div className="flex items-center mb-6">
+                        <button onClick={goBack} className="mr-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg">← Kembali</button>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gold">Materi Pembelajaran</h2>
+                    </div>
+
+                    <div className="flex overflow-x-auto space-x-2 mb-6 pb-2">
+                        {MATERI_DATA.map(m => (
+                            <button 
+                                key={m.id}
+                                onClick={() => setActiveTab(m.id)}
+                                className={`px-4 py-2 rounded-lg whitespace-nowrap font-semibold transition ${activeTab === m.id ? 'bg-gold text-darkred' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                            >
+                                {m.title}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="glass-panel p-6 md:p-8 rounded-2xl flex-grow overflow-y-auto custom-scrollbar">
+                        <h3 className="text-2xl font-bold mb-4 text-orange-400">
+                            {MATERI_DATA.find(m => m.id === activeTab).title}
+                        </h3>
+                        <div className="text-lg leading-relaxed">
+                            {MATERI_DATA.find(m => m.id === activeTab).content}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 4. Contoh Soal Component
+        const ContohSoal = ({ goBack }) => {
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [showAnswer, setShowAnswer] = useState(false);
+
+            const handleNext = () => {
+                if (currentIndex < CONTOH_SOAL.length - 1) {
+                    setCurrentIndex(currentIndex + 1);
+                    setShowAnswer(false);
+                }
+            };
+
+            const handlePrev = () => {
+                if (currentIndex > 0) {
+                    setCurrentIndex(currentIndex - 1);
+                    setShowAnswer(false);
+                }
+            };
+
+            return (
+                <div className="p-6 max-w-4xl mx-auto fade-in">
+                    <div className="flex items-center mb-6">
+                        <button onClick={goBack} className="mr-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg">← Kembali</button>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gold">Contoh Soal & Pembahasan</h2>
+                    </div>
+
+                    <div className="glass-panel p-8 rounded-2xl relative min-h-[300px]">
+                        <div className="absolute top-4 right-6 text-gold font-bold">
+                            Soal {currentIndex + 1} / {CONTOH_SOAL.length}
+                        </div>
+                        
+                        <h3 className="text-xl font-semibold mb-6 mt-4">{CONTOH_SOAL[currentIndex].q}</h3>
+                        
+                        {!showAnswer ? (
+                            <button 
+                                onClick={() => setShowAnswer(true)}
+                                className="px-6 py-3 bg-brightred hover:bg-red-500 rounded-lg font-bold transition shadow-lg text-white"
+                            >
+                                Lihat Pembahasan
+                            </button>
+                        ) : (
+                            <div className="fade-in bg-white/10 p-6 rounded-xl border-l-4 border-gold">
+                                <h4 className="font-bold text-gold mb-2">Jawaban Akhir: {CONTOH_SOAL[currentIndex].a}</h4>
+                                <h4 className="font-bold text-white mb-2">Langkah Penyelesaian:</h4>
+                                <p className="text-gray-300 leading-relaxed">{CONTOH_SOAL[currentIndex].step}</p>
+                            </div>
+                        )}
+
+                        <div className="flex justify-between mt-8">
+                            <button 
+                                onClick={handlePrev} 
+                                disabled={currentIndex === 0}
+                                className={`px-4 py-2 rounded-lg font-semibold ${currentIndex === 0 ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-white/20 hover:bg-white/30'}`}
+                            >
+                                Sebelumnya
+                            </button>
+                            <button 
+                                onClick={handleNext} 
+                                disabled={currentIndex === CONTOH_SOAL.length - 1}
+                                className={`px-4 py-2 rounded-lg font-semibold ${currentIndex === CONTOH_SOAL.length - 1 ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-gold text-darkred hover:bg-gold/80'}`}
+                            >
+                                Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 5. Latihan Soal Component
+        const LatihanSoal = ({ goBack, soundEnabled }) => {
+            const [status, setStatus] = useState('start'); // start, playing, result
+            const [questions, setQuestions] = useState([]);
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [feedback, setFeedback] = useState(null); // {isCorrect: true/false, correctAns: string}
+            const [stats, setStats] = useState({ correct: 0, wrong: 0 });
+
+            const startQuiz = () => {
+                const shuffled = [...LATIHAN_SOAL].sort(() => 0.5 - Math.random());
+                setQuestions(shuffled);
+                setCurrentQIndex(0);
+                setScore(0);
+                setStats({ correct: 0, wrong: 0 });
+                setStatus('playing');
+                setFeedback(null);
+            };
+
+            const handleAnswer = (selectedIndex) => {
+                if (feedback) return; // Prevent double clicking
+                
+                const q = questions[currentQIndex];
+                const isCorrect = selectedIndex === q.ans;
+                
+                playBeep(isCorrect, soundEnabled);
+
+                if (isCorrect) {
+                    setScore(score + (q.level * 10)); // Higher level = more points
+                    setStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+                } else {
+                    setStats(prev => ({ ...prev, wrong: prev.wrong + 1 }));
+                }
+
+                setFeedback({
+                    isCorrect,
+                    correctAns: q.opts[q.ans]
+                });
+            };
+
+            const nextQuestion = () => {
+                if (currentQIndex < questions.length - 1) {
+                    setCurrentQIndex(currentQIndex + 1);
+                    setFeedback(null);
+                } else {
+                    setStatus('result');
+                }
+            };
+
+            if (status === 'start') {
+                return (
+                    <div className="flex flex-col items-center justify-center h-screen px-4 fade-in">
+                        <button onClick={goBack} className="absolute top-6 left-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg">← Kembali</button>
+                        <div className="glass-panel p-10 rounded-2xl text-center max-w-xl">
+                            <h2 className="text-3xl font-bold text-gold mb-4">LATIHAN SOAL INTERAKTIF</h2>
+                            <p className="mb-8 text-gray-300">Terdapat 30 soal pilihan ganda acak dengan tingkat kesulitan bervariasi. Jawab dengan benar untuk mendapatkan poin maksimal!</p>
+                            <button onClick={startQuiz} className="px-8 py-4 bg-brightred hover:bg-red-500 text-white font-bold rounded-full text-xl shadow-lg transition transform hover:scale-105">
+                                MULAI LATIHAN
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (status === 'result') {
+                const percentage = Math.round((stats.correct / questions.length) * 100);
+                return (
+                    <div className="flex flex-col items-center justify-center h-screen px-4 fade-in">
+                        <button onClick={goBack} className="absolute top-6 left-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg">← Kembali ke Dashboard</button>
+                        <div className="glass-panel p-10 rounded-2xl text-center max-w-xl w-full">
+                            <h2 className="text-3xl font-bold text-white mb-2">LATIHAN SELESAI</h2>
+                            <h1 className="text-6xl font-extrabold text-gold mb-6">{percentage}%</h1>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="bg-green-500/20 border border-green-500 rounded-lg p-4">
+                                    <div className="text-3xl mb-1">✅</div>
+                                    <div className="text-xl font-bold text-green-400">{stats.correct} Benar</div>
+                                </div>
+                                <div className="bg-red-500/20 border border-red-500 rounded-lg p-4">
+                                    <div className="text-3xl mb-1">❌</div>
+                                    <div className="text-xl font-bold text-red-400">{stats.wrong} Salah</div>
+                                </div>
+                            </div>
+                            
+                            <div className="text-xl text-gray-300 mb-8">Skor Total: <span className="font-bold text-white">{score}</span></div>
+                            
+                            <button onClick={startQuiz} className="px-8 py-3 bg-gold text-darkred font-bold rounded-full shadow-[0_0_15px_rgba(255,215,0,0.5)] hover:scale-105 transition">
+                                ULANGI LATIHAN
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const q = questions[currentQIndex];
+            const progress = ((currentQIndex) / questions.length) * 100;
+
+            return (
+                <div className="p-6 max-w-3xl mx-auto fade-in flex flex-col h-screen">
+                    <div className="flex items-center justify-between mb-4">
+                        <button onClick={goBack} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">Keluar</button>
+                        <div className="text-gold font-bold">Soal {currentQIndex + 1} / {questions.length}</div>
+                        <div className="text-gold font-bold">Skor: {score}</div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-800 h-2 rounded-full mb-8 overflow-hidden">
+                        <div className="bg-gold h-full transition-all duration-300" style={{width: `${progress}%`}}></div>
+                    </div>
+
+                    <div className="glass-panel p-8 rounded-2xl flex-grow flex flex-col justify-center">
+                        <div className="text-sm text-orange-400 font-bold mb-2">Level Kesulitan: {q.level === 1 ? 'Mudah' : q.level === 2 ? 'Sedang' : 'Sulit'}</div>
+                        <h3 className="text-2xl font-semibold mb-8">{q.q}</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {q.opts.map((opt, i) => {
+                                let btnClass = "p-4 text-left rounded-xl border border-white/20 hover:bg-white/10 transition text-lg font-medium ";
+                                if (feedback) {
+                                    if (i === q.ans) btnClass += "bg-green-600/50 border-green-500 ";
+                                    else if (i !== q.ans) btnClass += "opacity-50 ";
+                                }
+                                return (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => handleAnswer(i)}
+                                        disabled={feedback !== null}
+                                        className={btnClass}
+                                    >
+                                        <span className="font-bold mr-3">{String.fromCharCode(65+i)}.</span> {opt}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {feedback && (
+                            <div className={`mt-8 p-4 rounded-xl text-center fade-in border-2 ${feedback.isCorrect ? 'bg-green-900/40 border-green-500' : 'bg-red-900/40 border-red-500'}`}>
+                                <h4 className={`text-xl font-bold mb-2 ${feedback.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                                    {feedback.isCorrect ? "SELAMAT! JAWABAN ANDA BENAR." : "MAAF, JAWABAN ANDA BELUM TEPAT."}
+                                </h4>
+                                {!feedback.isCorrect && <p className="text-white">Jawaban yang benar adalah: <strong className="text-green-400">{feedback.correctAns}</strong></p>}
+                                <button 
+                                    onClick={nextQuestion}
+                                    className="mt-4 px-6 py-2 bg-white text-darkred font-bold rounded-lg hover:bg-gray-200 transition"
+                                >
+                                    Lanjut →
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // 6. Laboratorium / Simulasi Component
+        const Simulasi = ({ goBack }) => {
+            const [angle, setAngle] = useState(45);
+            const [autoPlay, setAutoPlay] = useState(false);
+            const requestRef = useRef();
+
+            const animate = () => {
+                setAngle(prev => (prev + 1) % 360);
+                requestRef.current = requestAnimationFrame(animate);
+            };
+
+            useEffect(() => {
+                if (autoPlay) {
+                    requestRef.current = requestAnimationFrame(animate);
+                } else {
+                    cancelAnimationFrame(requestRef.current);
+                }
+                return () => cancelAnimationFrame(requestRef.current);
+            }, [autoPlay]);
+
+            const handleAngleChange = (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val)) val = 0;
+                // keep between 0-360
+                val = ((val % 360) + 360) % 360;
+                setAngle(val);
+                setAutoPlay(false);
+            };
+
+            const rad = angle * (Math.PI / 180);
+            const sinVal = Math.sin(rad);
+            const cosVal = Math.cos(rad);
+            const tanVal = Math.tan(rad);
+            
+            let kuadran = "";
+            if (angle === 0 || angle === 360) kuadran = "Batas I & IV";
+            else if (angle < 90) kuadran = "I";
+            else if (angle === 90) kuadran = "Batas I & II";
+            else if (angle < 180) kuadran = "II";
+            else if (angle === 180) kuadran = "Batas II & III";
+            else if (angle < 270) kuadran = "III";
+            else if (angle === 270) kuadran = "Batas III & IV";
+            else kuadran = "IV";
+
+            // SVG Constants
+            const cx = 150;
+            const cy = 150;
+            const r = 100;
+            const px = cx + (r * cosVal);
+            const py = cy - (r * sinVal); // minus because SVG y is down
+
+            // Arc Path for angle
+            const largeArcFlag = angle > 180 ? 1 : 0;
+            const arcPath = angle === 0 ? "" : `M ${cx+r/4} ${cy} A ${r/4} ${r/4} 0 ${largeArcFlag} 0 ${cx + (r/4 * cosVal)} ${cy - (r/4 * sinVal)}`;
+
+            return (
+                <div className="p-4 md:p-6 max-w-6xl mx-auto fade-in flex flex-col h-screen">
+                    <div className="flex items-center justify-between mb-4">
+                        <button onClick={goBack} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold">← Dashboard</button>
+                        <h2 className="text-xl md:text-2xl font-bold text-gold text-center flex-grow">LABORATORIUM LINGKARAN SATUAN</h2>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row gap-6 flex-grow">
+                        {/* Interactive Canvas Area */}
+                        <div className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center flex-1 relative min-h-[400px]">
+                            
+                            <h3 className="absolute top-4 left-6 text-xl font-bold text-white bg-black/40 px-3 py-1 rounded">Kuadran {kuadran}</h3>
+
+                            <svg width="300" height="300" className="drop-shadow-2xl">
+                                {/* Grid & Axes */}
+                                <line x1="0" y1="150" x2="300" y2="150" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                                <line x1="150" y1="0" x2="150" y2="300" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                                <text x="280" y="145" fill="white" fontSize="12">X</text>
+                                <text x="155" y="20" fill="white" fontSize="12">Y</text>
+
+                                {/* Circle */}
+                                <circle cx="150" cy="150" r="100" fill="none" stroke="#ffd700" strokeWidth="2" />
+                                
+                                {/* Angle Arc */}
+                                <path d={arcPath} fill="none" stroke="#ff3333" strokeWidth="3" />
+                                
+                                {/* Projection Lines */}
+                                <line x1={px} y1={py} x2={px} y2="150" stroke="#ff3333" strokeWidth="2" strokeDasharray="4,4" />
+                                <line x1={px} y1={py} x2="150" y2={py} stroke="#ffd700" strokeWidth="2" strokeDasharray="4,4" />
+
+                                {/* Radius Line */}
+                                <line x1="150" y1="150" x2={px} y2={py} stroke="white" strokeWidth="3" />
+                                
+                                {/* Point */}
+                                <circle cx={px} cy={py} r="6" fill="#ffd700" className="animate-pulse" />
+                                
+                                {/* Labels near point */}
+                                <text x={px > 150 ? px + 10 : px - 40} y={py > 150 ? py + 20 : py - 10} fill="white" fontSize="12" fontWeight="bold">
+                                    {angle}°
+                                </text>
+                            </svg>
+
+                            {/* Controls */}
+                            <div className="mt-8 w-full max-w-md bg-black/30 p-4 rounded-xl">
+                                <div className="flex items-center justify-between mb-2 text-sm font-bold">
+                                    <span>0°</span>
+                                    <span>Sudut: {angle}°</span>
+                                    <span>360°</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="0" max="360" 
+                                    value={angle} 
+                                    onChange={(e) => {setAngle(parseInt(e.target.value)); setAutoPlay(false);}}
+                                    className="w-full cursor-pointer accent-gold mb-4"
+                                />
+                                <div className="flex justify-center gap-2">
+                                    <button onClick={() => {setAngle(prev => (prev-1+360)%360); setAutoPlay(false);}} className="px-3 py-2 bg-white/20 rounded hover:bg-white/30 text-xl font-bold">-</button>
+                                    <input 
+                                        type="number" 
+                                        value={angle} 
+                                        onChange={handleAngleChange}
+                                        className="w-20 text-center bg-white/10 border border-white/30 rounded text-white font-bold px-2 focus:outline-none focus:border-gold"
+                                    />
+                                    <button onClick={() => {setAngle(prev => (prev+1)%360); setAutoPlay(false);}} className="px-3 py-2 bg-white/20 rounded hover:bg-white/30 text-xl font-bold">+</button>
+                                    
+                                    <button 
+                                        onClick={() => setAutoPlay(!autoPlay)} 
+                                        className={`ml-4 px-4 py-2 rounded font-bold transition ${autoPlay ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'}`}
+                                    >
+                                        {autoPlay ? '⏹ Berhenti' : '▶ Putar'}
+                                    </button>
+                                    <button onClick={() => {setAngle(0); setAutoPlay(false);}} className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded font-bold text-white">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Data Panel */}
+                        <div className="glass-panel p-6 rounded-2xl flex-1 flex flex-col space-y-6">
+                            <h3 className="text-2xl font-bold border-b border-white/20 pb-2">Informasi Sudut</h3>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-black/20 p-4 rounded-xl border border-gold/30">
+                                    <div className="text-gray-400 text-sm">Sudut (θ)</div>
+                                    <div className="text-3xl font-bold text-gold">{angle}°</div>
+                                </div>
+                                <div className="bg-black/20 p-4 rounded-xl border border-red-500/30">
+                                    <div className="text-gray-400 text-sm">Kuadran</div>
+                                    <div className="text-3xl font-bold text-brightred">{kuadran}</div>
+                                </div>
+                            </div>
+
+                            <div className="bg-black/20 p-4 rounded-xl flex-grow flex flex-col justify-center space-y-4">
+                                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                    <span className="text-xl font-bold w-24">sin θ</span>
+                                    <span className="text-gray-400 text-sm flex-grow text-center">(Sumbu Y)</span>
+                                    <span className={`text-2xl font-mono font-bold w-24 text-right ${sinVal >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        {getTrigFraction(sinVal, 'sin', angle)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                    <span className="text-xl font-bold w-24">cos θ</span>
+                                    <span className="text-gray-400 text-sm flex-grow text-center">(Sumbu X)</span>
+                                    <span className={`text-2xl font-mono font-bold w-24 text-right ${cosVal >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        {getTrigFraction(cosVal, 'cos', angle)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xl font-bold w-24">tan θ</span>
+                                    <span className="text-gray-400 text-sm flex-grow text-center">(sin / cos)</span>
+                                    <span className={`text-2xl font-mono font-bold w-24 text-right ${tanVal >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        {getTrigFraction(tanVal, 'tan', angle)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="bg-yellow-500/10 border border-gold p-4 rounded-xl">
+                                <h4 className="font-bold text-gold mb-1">Koordinat Titik</h4>
+                                <p className="font-mono text-lg">( x, y ) = ( {formatNumber(cosVal)}, {formatNumber(sinVal)} )</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 7. Pengembang Component
+        const Pengembang = ({ goBack }) => (
+            <div className="flex flex-col items-center justify-center h-screen px-4 fade-in">
+                <button onClick={goBack} className="absolute top-6 left-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg">← Kembali</button>
+                <div className="glass-panel p-10 rounded-2xl max-w-lg text-center shadow-[0_0_30px_rgba(255,51,51,0.2)]">
+                    <div className="w-32 h-32 mx-auto bg-gradient-to-tr from-gold to-brightred rounded-full flex items-center justify-center mb-6 shadow-lg border-4 border-white/20">
+                        <span className="text-6xl">👨‍🏫</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-2">FANGKI MURSID, S.Pd.</h2>
+                    <h3 className="text-xl text-gold font-semibold mb-4">GURU MATEMATIKA</h3>
+                    <div className="bg-white/10 py-2 px-6 rounded-full inline-block mb-6 border border-white/20">
+                        <span className="font-bold tracking-widest text-orange-300">SMAN 1 DULUPI</span>
+                    </div>
+                    <p className="text-gray-300 leading-relaxed italic border-t border-white/20 pt-6">
+                        "Multimedia Pembelajaran Interaktif ini dikembangkan sebagai inovasi pembelajaran matematika berbasis teknologi digital untuk membantu peserta didik memahami konsep fungsi trigonometri melalui eksplorasi, visualisasi, dan simulasi interaktif."
+                    </p>
+                </div>
+            </div>
+        );
+
+
+        // --- MAIN APP CONTAINER ---
+        const App = () => {
+            const [currentPage, setCurrentPage] = useState('welcome');
+            const [soundEnabled, setSoundEnabled] = useState(true);
+
+            // Simple navigation router
+            const renderPage = () => {
+                switch(currentPage) {
+                    case 'welcome': return <WelcomePage onStart={() => setCurrentPage('dashboard')} />;
+                    case 'dashboard': return <Dashboard navigateTo={setCurrentPage} />;
+                    case 'materi': return <MateriPembelajaran goBack={() => setCurrentPage('dashboard')} />;
+                    case 'contoh': return <ContohSoal goBack={() => setCurrentPage('dashboard')} />;
+                    case 'latihan': return <LatihanSoal goBack={() => setCurrentPage('dashboard')} soundEnabled={soundEnabled} />;
+                    case 'simulasi': return <Simulasi goBack={() => setCurrentPage('dashboard')} />;
+                    case 'pengembang': return <Pengembang goBack={() => setCurrentPage('dashboard')} />;
+                    default: return <WelcomePage onStart={() => setCurrentPage('dashboard')} />;
+                }
+            };
+
+            return (
+                <div className="relative min-h-screen">
+                    {/* Top Right Controls (Sound toggle) */}
+                    <div className="absolute top-4 right-4 z-50 flex gap-2">
+                        <button 
+                            onClick={() => setSoundEnabled(!soundEnabled)}
+                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 border border-white/20 transition-all text-xl"
+                            title={soundEnabled ? "Matikan Suara" : "Nyalakan Suara"}
+                        >
+                            {soundEnabled ? '🔊' : '🔇'}
+                        </button>
+                    </div>
+
+                    {renderPage()}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
